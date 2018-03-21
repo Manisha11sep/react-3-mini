@@ -26,26 +26,61 @@ class App extends Component {
     this.resetData = this.resetData.bind( this );
     this.byYear = this.byYear.bind( this );
     this.deleteBuyer = this.deleteBuyer.bind( this );
+
+    // componentDidMount(){
+    //   this.getVehicles
+    // }
+
+
+    
   }
 
   getVehicles() {
-    // axios (GET)
+  const promise = axios.get('https://joes-autos.herokuapp.com/api/vehicles')
+    promise.then(res =>{
+      console.log(res.data);
+      this.setState({ 
+      
+        vehiclesToDisplay : res.data
+      })
+    })
     // setState with response -> vehiclesToDisplay
+
   }
 
   getPotentialBuyers() {
-    // axios (GET)
-    // setState with response -> buyersToDisplay
+    const promise = axios.get('https://joes-autos.herokuapp.com/api/buyers')
+    promise.then(res =>{
+      this.setState({ 
+        buyersToDisplay : res.data
+      })
+    })
   }
 
   sellCar( id ) {
+    axios.delete(`https://joes-autos.herokuapp.com/api/vehicles/${id}`)
+    .then(res => {this.setState({vehiclesToDisplay: res.data.vehicles});
+  }).catch(() =>toast.error ("failed to  sold out"));
     // axios (DELETE)
     // setState with response -> vehiclesToDisplay
   }
 
   filterByMake() {
     let make = this.refs.selectedMake.value;
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles').
+    then(res =>{console.log(res);
+      var newVal = this.state.vehiclesToDisplay.filter(elem =>{
+       // console.log(elem);
+        if(elem.make == make){
+        console.log(elem);
+        return elem;
+      }
+      })
 
+      this.setState({vehiclesToDisplay: newVal});
+                
+      })
+      
     // axios (GET)
     // setState with response -> vehiclesToDisplay
   }
@@ -57,9 +92,12 @@ class App extends Component {
     // setState with response -> vehiclesToDisplay
   }
 
+
   updatePrice( priceChange, id ) {
-    // axios (PUT)
-    // setState with response -> vehiclesToDisplay
+ axios.put(`https://joes-autos.herokuapp.com/api/vehicles/${ id }/${ priceChange}`)
+ .then( response =>{
+      this.setState({ vehiclesToDisplay : response.data.vehicles});
+    }).catch(() =>toast.error("failed to update the price"));
   }
 
   addCar() {
@@ -70,7 +108,20 @@ class App extends Component {
       year: this.refs.year.value,
       price: this.refs.price.value
     };
-
+  
+   const promise = axios.post('https://joes-autos.herokuapp.com/api/vehicles', {
+    "make": newCar.make,
+    "model": newCar.model,
+    "year": newCar.year,
+    "color": newCar.color,
+    "price": newCar.price
+  }).then(res =>{
+      this.setState({ 
+        vehiclesToDisplay : res.data.vehicles
+      })
+    }).catch((err) =>{
+  console.log('new vichel error' , err)
+    })
     // axios (POST)
     // setState with response -> vehiclesToDisplay
   }
